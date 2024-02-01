@@ -12,7 +12,7 @@ const days = document.querySelector('[data-days]');
 const hours = document.querySelector('[data-hours]');
 const minutes = document.querySelector('[data-minutes]');
 const seconds = document.querySelector('[data-seconds]');
-const clockTimer = document.querySelector('timer');
+const clockTimer = document.querySelectorAll('timer');
 
 class Timer {
     constructor(tick) {
@@ -30,6 +30,10 @@ class Timer {
 
     stop() {
         clearInterval(this.intervalId);
+        days.textContent = '00';
+        hours.textContent = '00';
+        minutes.textContent = '00';
+        seconds.textContent = '00';
     }
 }
 
@@ -42,7 +46,7 @@ startBtn.addEventListener('click', () => {
 });
 
 input.addEventListener('click', () => {
-    timer.stop();
+    flatpickr(input, options);
 });
 
 function onTick(time) {
@@ -50,10 +54,10 @@ function onTick(time) {
 }
 
 function formatTime({days, hours, minutes, seconds}) {
-    days = days.toString().padStart(2, 0);
-    hours = hours.toString().padStart(2, 0);
-    minutes = minutes.toString().padStart(2, 0);
-    seconds = seconds.toString().padStart(2, 0);
+    days = days.toString().padStart(2, '0');
+    hours = hours.toString().padStart(2, '0');
+    minutes = minutes.toString().padStart(2, '0');
+    seconds = seconds.toString().padStart(2, '0');
     return `${days} ${hours} ${minutes} ${seconds}`;
 }
 
@@ -63,16 +67,18 @@ function formatTime({days, hours, minutes, seconds}) {
         defaultDate: new Date(),
         minuteIncrement: 1,
         onClose(selectedDates) {
-            if (userSelectedDate > date) {
-                startBtn.disabled = false;
-            } else {
-                window.alert("Please choose a date in the future");
+            userSelectedDate = selectedDates[0];
+            if (userSelectedDate < new Date) {
+                iziToast.error({
+                    message: 'Please choose a date in the future',
+                });
                 startBtn.disabled = true;
+            } else {
+                startBtn.disabled = false;
             }
           console.log(selectedDates[0]);
         },
       };
-flatpickr(input, options);
 
 function convertMs(ms) {
     const second = 1000;
