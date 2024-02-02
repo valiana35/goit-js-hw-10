@@ -12,70 +12,53 @@ const days = document.querySelector('[data-days]');
 const hours = document.querySelector('[data-hours]');
 const minutes = document.querySelector('[data-minutes]');
 const seconds = document.querySelector('[data-seconds]');
-const clockTimer = document.querySelector('.timer');
 
-startBtn.addEventListener('click', () => {
-    timer.start();
-});
+startBtn.addEventListener('click', onStartBtnClick);
 
-let userSelectedDate = null;
-let diff;
+let userSelectedDate;
 
-class Timer {
-    constructor({onTick}) {
-        this.intervalId = null;
-        this.onTick = onTick;
+function onStartBtnClick() {
+const intervalId = setInterval(() => {
+    const init = Date.now();
+    const userInit = userSelectedDate.getTime();
+    const diff = userInit - init;
+    if (diff > 0) {
+        const convertDiff = convertMs(diff);
+        days.textContent = addLeadingZero(convertDiff.days);
+        hours.textContent = addLeadingZero(convertDiff.hours);
+        minutes.textContent = addLeadingZero(convertDiff.minutes);
+        seconds.textContent = addLeadingZero(convertDiff.seconds);
+    } else {
+        clearInterval(intervalId);
     }
-    start() {
-        if (diff > 0) {
-            days.textContent = addLeadingZero(days);
-            hours.textContent = addLeadingZero(hours);
-            minutes.textContent = addLeadingZero(minutes);
-            seconds.textContent = addLeadingZero(seconds);
-        } else {
-            clearInterval(this.intervalId);
-        }
-        this.intervalId = setInterval(() => {
-            const init = Date.now();
-            const userInit = userSelectedDate.getTime();
-            const diff = userInit - init;
-            const { days, hours, minutes, seconds } = convertMs(diff);
-            this.onTick({ days, hours, minutes, seconds });
-        }, 1000);
-    }
-}
-
-const timer = new Timer({
-    onTick: updateClockTimer,
-});
-
-function updateClockTimer(time) {
-    clockTimer.textContent = `${time.days} ${time.hours} ${time.minutes} ${time.seconds}`;
+}, 1000);
 }
 
 function addLeadingZero(value) {
     return String(value).padStart(2, '0');
 }
 
-     const options = {
-        enableTime: true,
-        time_24hr: true,
-        defaultDate: new Date(),
-        minuteIncrement: 1,
-        onClose(selectedDates) {
-            userSelectedDate = selectedDates[0];
-            if (userSelectedDate < new Date) {
-                iziToast.error({
-                    message: 'Please choose a date in the future',
-                    position: 'topRight',
-                });
-                startBtn.disabled = true;
-            } else {
-                startBtn.disabled = false;
-            }
-          console.log(selectedDates[0]);
-        },
-      };
+const options = {
+    enableTime: true,
+    time_24hr: true,
+    defaultDate: new Date(),
+    minuteIncrement: 1,
+    onClose(selectedDates) {
+        userSelectedDate = selectedDates[0];
+        if (userSelectedDate < new Date) {
+            iziToast.error({
+                message: 'Please choose a date in the future',
+                position: 'topRight',
+            });
+            startBtn.disabled = true;
+        } else {
+            startBtn.disabled = false;
+        }
+      console.log(selectedDates[0]);
+    },
+  };
+
+  flatpickr(input, options);
 
 function convertMs(ms) {
     const second = 1000;
@@ -89,8 +72,6 @@ function convertMs(ms) {
   
     return { days, hours, minutes, seconds };
   }
-
-  flatpickr(input, options);
   
   console.log(convertMs(2000));
   console.log(convertMs(140000));
