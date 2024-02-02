@@ -12,53 +12,49 @@ const days = document.querySelector('[data-days]');
 const hours = document.querySelector('[data-hours]');
 const minutes = document.querySelector('[data-minutes]');
 const seconds = document.querySelector('[data-seconds]');
-const clockTimer = document.querySelectorAll('timer');
-
-class Timer {
-    constructor(tick) {
-        this.intervalId = null;
-        this.tick = tick;
-    }
-    start() {
-        const init = Date.now();
-        this.intervalId = setInterval(() => {
-            const diff = init - Date.now();
-            const time = convertMs(diff);
-            this.tick(time);
-        },1000);
-    }
-
-    stop() {
-        clearInterval(this.intervalId);
-        days.textContent = '00';
-        hours.textContent = '00';
-        minutes.textContent = '00';
-        seconds.textContent = '00';
-    }
-}
-
-const timer = new Timer(onTick);
-const date = new Date();
-let userSelectedDate;
+const clockTimer = document.querySelector('.timer');
 
 startBtn.addEventListener('click', () => {
     timer.start();
 });
 
-input.addEventListener('click', () => {
-    flatpickr(input, options);
-});
+let userSelectedDate = null;
+let diff;
 
-function onTick(time) {
-    const str = formatTime(time);
+class Timer {
+    constructor({onTick}) {
+        this.intervalId = null;
+        this.onTick = onTick;
+    }
+    start() {
+        if (diff > 0) {
+            days.textContent = addLeadingZero(days);
+            hours.textContent = addLeadingZero(hours);
+            minutes.textContent = addLeadingZero(minutes);
+            seconds.textContent = addLeadingZero(seconds);
+        } else {
+            clearInterval(this.intervalId);
+        }
+        this.intervalId = setInterval(() => {
+            const init = Date.now();
+            const userInit = userSelectedDate.getTime();
+            const diff = userInit - init;
+            const { days, hours, minutes, seconds } = convertMs(diff);
+            this.onTick({ days, hours, minutes, seconds });
+        }, 1000);
+    }
 }
 
-function formatTime({days, hours, minutes, seconds}) {
-    days = days.toString().padStart(2, '0');
-    hours = hours.toString().padStart(2, '0');
-    minutes = minutes.toString().padStart(2, '0');
-    seconds = seconds.toString().padStart(2, '0');
-    return `${days} ${hours} ${minutes} ${seconds}`;
+const timer = new Timer({
+    onTick: updateClockTimer,
+});
+
+function updateClockTimer(time) {
+    clockTimer.textContent = `${time.days} ${time.hours} ${time.minutes} ${time.seconds}`;
+}
+
+function addLeadingZero(value) {
+    return String(value).padStart(2, '0');
 }
 
      const options = {
@@ -71,6 +67,7 @@ function formatTime({days, hours, minutes, seconds}) {
             if (userSelectedDate < new Date) {
                 iziToast.error({
                     message: 'Please choose a date in the future',
+                    position: 'topRight',
                 });
                 startBtn.disabled = true;
             } else {
@@ -92,6 +89,8 @@ function convertMs(ms) {
   
     return { days, hours, minutes, seconds };
   }
+
+  flatpickr(input, options);
   
   console.log(convertMs(2000));
   console.log(convertMs(140000));
