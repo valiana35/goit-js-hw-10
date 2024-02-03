@@ -1,35 +1,38 @@
-'use strict';
-
 import iziToast from "izitoast";
 import "izitoast/dist/css/iziToast.min.css";
 
-const form = document.querySelector('form');
-const btn = document.querySelector('button');
+const form = document.querySelector('.form');
 
-btn.addEventListener('submit', onBtnSubmit);
+form.addEventListener('submit', onFormSubmit);
 
-function onBtnSubmit(value, delay, isValid) {
+function onFormSubmit(event) {
+    event.preventDefault();
+    const delay = form.elements.delay.value;
+    const selectedState = form.elements.state.value;
 const promise = new Promise((resolve, reject) => {
     setTimeout(() => {
-        if (isValid === true) {
-            iziToast.success({
-                title: 'OK',
-                message: `✅ Fulfilled promise in ${delay}ms`,
-            });
-        } else {
-            iziToast.error({
-                message: `❌ Rejected promise in ${delay}ms`,
-                position: 'topRight',
-            });
+        if (selectedState === 'fulfilled') {
+            resolve(delay);
+        } else if (selectedState === 'rejected') {
+            reject(delay);
         }
     }, delay);
 });
-}
 
 promise
-then(delay => {
-   return `✅ Fulfilled promise in ${delay}ms`;
+.then((delay) => {
+    iziToast.success({
+    title: 'OK',
+    message: `✅ Fulfilled promise in ${delay}ms`,
+    position: 'topRight',
+});
 })
-.catch(delay => {
-    return `❌ Rejected promise in ${delay}ms`;
-})
+.catch((delay) => {
+     iziToast.error({
+        title: 'Error',
+        message: `❌ Rejected promise in ${delay}ms`,
+        position: 'topRight',
+    });
+});
+form.reset();
+}
