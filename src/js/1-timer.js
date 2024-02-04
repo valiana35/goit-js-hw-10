@@ -28,7 +28,10 @@ const intervalId = setInterval(() => {
         hours.textContent = addLeadingZero(convertDiff.hours);
         minutes.textContent = addLeadingZero(convertDiff.minutes);
         seconds.textContent = addLeadingZero(convertDiff.seconds);
+        startBtn.disabled = true;
+        input.disabled = true;
     } else {
+        input.disabled = false;
         clearInterval(intervalId);
     }
 }, 1000);
@@ -50,9 +53,6 @@ const options = {
                 message: 'Please choose a date in the future',
                 position: 'topRight',
             });
-            startBtn.disabled = true;
-        } else {
-            startBtn.disabled = false;
         }
       console.log(selectedDates[0]);
     },
